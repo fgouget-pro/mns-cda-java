@@ -6,9 +6,25 @@ public class Task {
         System.out.println("Task static initialised");
     }
 
-    {
+
+    public Task(){
         this.id = Math.round(Math.random()*1000);
     }
+
+    public Task(String title, String description){
+        this();
+        this.title = title;
+        this.description = description;
+    }
+
+    public Task(String title, String description, User user){
+        this(title, description);
+        this.creator = user;
+    }
+
+
+
+
 
     protected final long id;
     protected String description;

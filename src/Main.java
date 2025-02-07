@@ -5,9 +5,21 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws ParseException {
+    static DatabaseAccess dba = DatabaseAccess.getInstance();
 
-        DatabaseAccess dba = DatabaseAccess.getInstance();
+    public static void main(String[] args) {
+
+
+        Task builtTask = new TaskBuilder()
+                .setCreator(new User())
+                .setDescription("This is a test")
+                // .setTitle("This is a title")
+                .setDone(false)
+                .createTask();
+
+
+
+
 
 
         var scanner = new Scanner(System.in);
@@ -36,7 +48,11 @@ public class Main {
         task3.setTitle("My Task3");
         task3.setDescription("My Description3");
         DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        task3.setDueDate(formatter.parse("01/01/2026"));
+        try {
+            task3.setDueDate(formatter.parse("01/01/2026"));
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+        }
         dba.addTask(task3);
 
 
