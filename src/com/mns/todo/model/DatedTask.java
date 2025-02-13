@@ -1,3 +1,5 @@
+package com.mns.todo.model;
+
 import java.util.Date;
 
 public class DatedTask extends Task {
@@ -14,7 +16,7 @@ public class DatedTask extends Task {
 
     @Override
     public String toString() {
-        return "DatedTask{" +
+        return "com.mns.todo.model.DatedTask{" +
                 "dueDate=" + dueDate +
                 ", id=" + id +
                 ", description='" + description + '\'' +

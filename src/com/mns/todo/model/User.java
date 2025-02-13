@@ -1,6 +1,8 @@
+package com.mns.todo.model;
+
 import java.util.Objects;
 
-public class User {
+public class User implements Model {
 
     private Long id;
     private String firstName;
@@ -33,7 +35,7 @@ public class User {
         this.lastName = lastName;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -47,7 +49,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "com.mns.todo.model.User{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 '}';

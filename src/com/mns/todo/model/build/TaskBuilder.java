@@ -1,3 +1,8 @@
+package com.mns.todo.model.build;
+
+import com.mns.todo.model.Task;
+import com.mns.todo.model.User;
+
 public class TaskBuilder {
     protected String description;
     protected String title;

@@ -1,9 +1,11 @@
+package com.mns.todo.model;
+
 import java.util.Objects;
 
-public class Task {
+public class Task implements Model{
 
     static {
-        System.out.println("Task static initialised");
+        System.out.println("com.mns.todo.model.Task static initialised");
     }
 
 
@@ -70,7 +72,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "com.mns.todo.model.Task{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +

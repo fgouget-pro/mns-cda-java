@@ -1,4 +1,11 @@
-import java.io.IOException;
+import com.mns.todo.database.DatabaseAccess;
+import com.mns.todo.database.ElementNotFoundException;
+import com.mns.todo.database.ModelDatabaseAccess;
+import com.mns.todo.model.DatedTask;
+import com.mns.todo.model.Task;
+import com.mns.todo.model.User;
+import com.mns.todo.model.build.TaskBuilder;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +38,7 @@ public class Main {
         Task task = new Task();
         task.setCreator(u);
         task.setDone(false);
-        task.setTitle("My Task");
+        task.setTitle("My com.mns.todo.model.Task");
         task.setDescription("My Description");
         dba.addTask(task);
 
@@ -68,6 +75,17 @@ public class Main {
             System.out.println(found);
         } catch (ElementNotFoundException e) {
             System.out.println(e.getMessage());
+        }
+
+
+        ModelDatabaseAccess<User> dbUser = new ModelDatabaseAccess<>();
+        ModelDatabaseAccess<Task> dbTask = new ModelDatabaseAccess<>();
+
+        try {
+            User myUser = dbUser.getElementByID(10);
+            Task myTask = dbTask.getElementByID(10);
+        } catch (ElementNotFoundException e){
+
         }
 
         scanner.close();
