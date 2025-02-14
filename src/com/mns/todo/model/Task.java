@@ -25,9 +25,6 @@ public class Task implements Model{
     }
 
 
-
-
-
     protected final long id;
     protected String description;
     protected String title;

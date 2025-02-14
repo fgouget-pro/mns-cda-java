@@ -6,6 +6,7 @@ public class User implements Model {
 
     private Long id;
     private String firstName;
+    private String lastName;
 
     {
         this.id = Math.round(Math.random()*1000);
@@ -20,7 +21,6 @@ public class User implements Model {
         this.lastName = lastName;
     }
 
-    private String lastName;
 
     public User(){
     }
@@ -33,6 +33,11 @@ public class User implements Model {
     public User(String firstName, String lastName) {
         this(firstName);
         this.lastName = lastName;
+    }
+
+    public User(long id, String firstName, String lastName) {
+        this(firstName, lastName);
+        this.id = id;
     }
 
     public long getId() {
@@ -49,9 +54,10 @@ public class User implements Model {
 
     @Override
     public String toString() {
-        return "com.mns.todo.model.User{" +
+        return "User{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 '}';
     }
 
