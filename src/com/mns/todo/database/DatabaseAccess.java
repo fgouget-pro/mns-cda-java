@@ -2,6 +2,7 @@ package com.mns.todo.database;
 
 import com.mns.todo.model.Task;
 import com.mns.todo.model.User;
+import com.mns.todo.model.mapper.UserMapper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,6 +13,7 @@ import java.util.List;
 
 public class DatabaseAccess {
 
+    /**  Sert à implementer le design pattern Singleton.*/
     private static DatabaseAccess instance;
 
     public static DatabaseAccess getInstance() {
@@ -21,7 +23,6 @@ public class DatabaseAccess {
         return instance;
     }
 
-    private final List<User> users = new ArrayList<>();
     private final List<Task> tasks = new ArrayList<>();
     private Connection connection;
 
@@ -36,23 +37,22 @@ public class DatabaseAccess {
 
 
     private void createTables() throws SQLException {
-        connection.createStatement().executeUpdate("CREATE TABLE USERS (id number, firstName varchar(255), lastName varchar(255));");
-        connection.createStatement().executeUpdate("CREATE TABLE TASKS (name varchar(255), description varchar(MAX));");
+        connection.createStatement().executeUpdate("CREATE TABLE USERS (id bigint auto_increment primary key, firstName varchar(255), lastName varchar(255));");
+        connection.createStatement().executeUpdate("CREATE TABLE TASKS (id bigint auto_increment primary key, name varchar(255), description varchar(MAX));");
         ResultSet rs = connection.createStatement().executeQuery("SHOW TABLES;");
         while (rs.next()) {
             System.out.println(rs.getString(1));
         }
     }
 
-
-
-
-
     public void addUser(User user) {
-        users.add(user);
         try {
-            connection.createStatement()
-                    .executeUpdate("INSERT INTO USERS (id, firstName, lastName) VALUES (" + user.getId() + ", '" + user.getFirstName()+ "','"+ user.getLastName()+"')");
+            var statement = connection
+                    .prepareStatement("INSERT INTO USERS (firstName, lastName) VALUES (?, ?)");
+            //statement.setLong(1, user.getId());
+            statement.setString(1, user.getFirstName());
+            statement.setString(2, user.getLastName());
+            statement.executeUpdate();
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -66,12 +66,7 @@ public class DatabaseAccess {
     public List<User> getUsers() {
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM USERS");
-            var users = new ArrayList<User>();
-            while (rs.next()) {
-                User user = new User(rs.getLong(1), rs.getString(2), rs.getString(3));
-                users.add(user);
-            }
-            return users;
+            return new UserMapper().toUserList(rs);
         } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
@@ -92,12 +87,17 @@ public class DatabaseAccess {
     }
 
     public User getUserById(long id) throws ElementNotFoundException {
-        for (User user : users) {
-            if (user.getId() == id) {
-                return user;
+        try {
+            var statement = connection.prepareStatement("SELECT * FROM USERS WHERE id = ?");
+            statement.setLong(1, id);
+            ResultSet rs = statement.executeQuery();
+            if (rs.next()) {
+                return new UserMapper().toUser(rs);
             }
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
         }
-        throw new ElementNotFoundException("The user with ID <" + id + "> Could not be found");
+        throw new ElementNotFoundException("The User with ID <" + id + "> could not be found");
     }
 
 
