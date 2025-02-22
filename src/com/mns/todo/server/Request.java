@@ -1,6 +1,8 @@
 package com.mns.todo.server;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Request {
 
@@ -10,11 +12,18 @@ public class Request {
 
     private Map<String, String> headers;
     private String body;
-
+    private Map<String, String> params;
 
     public Request(String method, String path, String protocol) {
         this.method = method;
-        this.path = path;
+
+        var pathAndParams = path.split("\\?");
+        this.path = pathAndParams[0];
+        if (pathAndParams.length > 1) {
+            this.params = Arrays.stream(pathAndParams[1].split("&"))
+                    .map(s -> s.split("="))
+                    .collect(Collectors.toMap(s -> s[0], s -> s[1]));
+        }
         this.protocol = protocol;
     }
 
@@ -58,13 +67,33 @@ public class Request {
         this.body = body;
     }
 
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
+
+    public boolean hasParam(String key){
+        return this.params != null && this.params.containsKey(key);
+    }
+
+    public String getParam(String key){
+        if (!this.hasParam(key)) return null;
+        return this.params.get(key);
+    }
+
     @Override
     public String toString() {
         return "Request{" +
-                "headers=" + headers +
-                ", protocol='" + protocol + '\'' +
+                "method='" + method + '\'' +
                 ", path='" + path + '\'' +
-                ", method='" + method + '\'' +
+                ", protocol='" + protocol + '\'' +
+                ", headers=" + headers +
+                ", body='" + body + '\'' +
+                ", params=" + params +
                 '}';
     }
 }

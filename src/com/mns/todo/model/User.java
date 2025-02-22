@@ -8,10 +8,6 @@ public class User implements Model {
     private String firstName;
     private String lastName;
 
-    {
-        this.id = Math.round(Math.random()*1000);
-    }
-
 
     public String getLastName() {
         return lastName;
@@ -20,7 +16,6 @@ public class User implements Model {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
 
     public User(){
     }
@@ -37,6 +32,10 @@ public class User implements Model {
 
     public User(long id, String firstName, String lastName) {
         this(firstName, lastName);
+        this.id = id;
+    }
+
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -4,10 +4,7 @@ import com.mns.todo.model.Task;
 import com.mns.todo.model.User;
 import com.mns.todo.model.mapper.UserMapper;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,6 +95,19 @@ public class DatabaseAccess {
             System.err.println(e.getMessage());
         }
         throw new ElementNotFoundException("The User with ID <" + id + "> could not be found");
+    }
+
+    public void saveUser(User u){
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement("UPDATE USERS SET firstName = ?, lastName = ? WHERE id = ?");
+            statement.setString(1, u.getFirstName());
+            statement.setString(2, u.getLastName());
+            statement.setLong(3, u.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
     }
 
 

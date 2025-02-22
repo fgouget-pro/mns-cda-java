@@ -32,6 +32,4 @@ public class UserMapper {
         return users;
     }
 
-
-
 }
