@@ -20,7 +20,6 @@ public class UserController extends RequestHandler {
     @Override
     public void handleGet(Request request, Socket client) throws IOException {
         String body = "";
-
         if (request.hasParam("id")) {
             body = buildSingleUserPage(Long.parseLong(request.getParam("id")));
         } else {
@@ -33,44 +32,52 @@ public class UserController extends RequestHandler {
         sendLastLineAndFlush(client);
     }
 
+    private StringBuilder createHtmlHeader(String title){
+        StringBuilder html = new StringBuilder();
+        html.append("<html>");
+        html.append("<head>");
+        html.append(String.format("<title>%s</title>\n", title));
+        html.append("<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH\" crossorigin=\"anonymous\">");
+        html.append("</head></body><div class=\"container-fluid\">\n");
+        return html;
+    }
+
+    private StringBuilder createHtmlFooter(StringBuilder sb){
+        return sb.append("</div></body></html>\n");
+    }
+
+    private String createInputLine(String label, String name, String value){
+        return String.format("<label class=\"form-label\">%s </label><input class=\"form-control\" type=\"text\" name=\"%s\" value=\"%s\"><br>\n",label,name, value);
+    }
 
     private String buildSingleUserPage(long id) {
-        User user = null;
+        User user;
         try {
             user = dba.getUserById(id);
         } catch (ElementNotFoundException e) {
             throw new RuntimeException(e);
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html>\n");
-        sb.append("<head>\n");
-        sb.append(String.format("<title>%s %s</title>\n", user.getFirstName(), user.getLastName()));
-        sb.append("</head></body>\n");
+        StringBuilder sb = createHtmlHeader(user.getFirstName() + " " + user.getLastName());
         sb.append("<a href=\"/users\">Retour</a>\n");
         sb.append("<form method=\"POST\">");
         sb.append(String.format("ID: %d <br>\n", user.getId()));
-        sb.append(String.format("<label>First Name </label><input type=\"text\" name=\"firstName\" value=\"%s\"><br>\n", user.getFirstName()));
-        sb.append(String.format("<label>Last Name </label><input type=\"text\" name=\"lastName\" value=\"%s\"><br>\n", user.getLastName()));
-        sb.append("<button>OK</button>\n");
+        sb.append(createInputLine("First Name", "firstName", user.getFirstName()));
+        sb.append(createInputLine("Last Name", "lastName", user.getLastName()));
+        sb.append("<button class=\"btn btn-success\">OK</button>\n");
         sb.append("</form>\n");
-        sb.append("</body></html>\n");
-        return sb.toString();
+        return createHtmlFooter(sb).toString();
     }
 
     private String buildBodyUsersList() {
         var users = dba.getUsers();
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html>\n");
-        sb.append("<head>\n");
-        sb.append("<title>Liste des utilisateurs</title>\n");
-        sb.append("</head></body>\n");
+        StringBuilder sb = createHtmlHeader("Liste des utilisateurs");
         sb.append("<h1> Liste des utilisateurs:</h1>\n");
         sb.append("<ul>\n");
         for (User user : users) {
             sb.append(String.format("\t<li><a href=\"users?id=%d\"> %d %s %s</a></li>\n", user.getId(), user.getId(), user.getFirstName(), user.getLastName()));
         }
-        sb.append("</ul>\n</body>\n</html>\n");
-        return sb.toString();
+        sb.append("</ul>\n");
+        return createHtmlFooter(sb).toString();
     }
 
     @Override
@@ -86,16 +93,17 @@ public class UserController extends RequestHandler {
                 try {
                     User u = mapper.readValue(body, User.class);
                     dba.addUser(u);
+                    sendHttpStatus(client, HttpStatusCode.CREATED);
                 } catch (JsonMappingException e) {
                     sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
                     sendLastLineAndFlush(client);
                 }
-                sendHttpStatus(client, HttpStatusCode.CREATED);
                 break;
             case "application/x-www-form-urlencoded":
                 if (body == null || body.isEmpty()) {
                     sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
                     sendLastLineAndFlush(client);
+                    return;
                 }
                 User u = new User();
                 u.setId(Long.parseLong(request.getParam("id")));
@@ -103,10 +111,18 @@ public class UserController extends RequestHandler {
                     String[] keyValue = s.split("=");
                     switch (keyValue[0]) {
                         case "firstName":
-                            u.setFirstName(keyValue[1]);
+                            if (keyValue.length == 2) {
+                                u.setFirstName(keyValue[1]);
+                            } else {
+                                u.setFirstName("");
+                            }
                             break;
                         case "lastName":
-                            u.setLastName(keyValue[1]);
+                            if (keyValue.length == 2) {
+                                u.setLastName(keyValue[1]);
+                            } else {
+                                u.setLastName("");
+                            }
                             break;
                     }
                 });

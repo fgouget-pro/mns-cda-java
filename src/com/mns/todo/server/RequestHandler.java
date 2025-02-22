@@ -39,6 +39,13 @@ public abstract class RequestHandler {
         sendLastLineAndFlush(client);
     }
 
+    protected void sent401(Socket client) throws IOException {
+        sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
+        sendContentType(client,"text/html");
+        sendBody(client, "<b>Bad Request</b>");
+        sendLastLineAndFlush(client);
+    }
+
     public abstract void handleGet(Request request, Socket client) throws IOException;
 
 

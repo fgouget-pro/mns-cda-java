@@ -98,6 +98,10 @@ public class DatabaseAccess {
     }
 
     public void saveUser(User u){
+        if (u.getId() == 0){
+            addUser(u);
+            return;
+        }
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement("UPDATE USERS SET firstName = ?, lastName = ? WHERE id = ?");
