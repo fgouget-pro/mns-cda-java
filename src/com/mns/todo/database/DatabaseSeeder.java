@@ -15,8 +15,9 @@ public class DatabaseSeeder {
         List<User> users = generateUsers(100);
         users.forEach(dba::addUser);
         List<Task> tasks = generateTasks(100);
+        final var fusers = dba.getUsers(); // to get the ids;
         tasks.forEach(task -> {
-            task.setCreator(users.get(new Random().nextInt(users.size())));
+            task.setCreator(fusers.get(new Random().nextInt(fusers.size())));
             dba.addTask(task);
         });
 
@@ -38,11 +39,13 @@ public class DatabaseSeeder {
     private List<Task> generateTasks(int number){
         var wordGenerator = JRand.word();
         var paragraphGenerator = JRand.paragraph();
+        var boolGenerator = JRand.bool();
         List<Task> tasks = new ArrayList<>();
         for (int i=0; i<number; i++){
             Task t = new Task();
             t.setTitle(wordGenerator.gen());
             t.setDescription(paragraphGenerator.gen());
+            t.setDone(boolGenerator.gen());
             tasks.add(t);
         }
         return tasks;

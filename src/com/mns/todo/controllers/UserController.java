@@ -25,30 +25,12 @@ public class UserController extends RequestHandler {
         } else {
             body = buildBodyUsersList();
         }
-
         sendHttpStatus(client, HttpStatusCode.OK);
         sendContentType(client, "text/html");
         sendBody(client, body);
         sendLastLineAndFlush(client);
     }
 
-    private StringBuilder createHtmlHeader(String title){
-        StringBuilder html = new StringBuilder();
-        html.append("<html>");
-        html.append("<head>");
-        html.append(String.format("<title>%s</title>\n", title));
-        html.append("<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH\" crossorigin=\"anonymous\">");
-        html.append("</head></body><div class=\"container-fluid\">\n");
-        return html;
-    }
-
-    private StringBuilder createHtmlFooter(StringBuilder sb){
-        return sb.append("</div></body></html>\n");
-    }
-
-    private String createInputLine(String label, String name, String value){
-        return String.format("<label class=\"form-label\">%s </label><input class=\"form-control\" type=\"text\" name=\"%s\" value=\"%s\"><br>\n",label,name, value);
-    }
 
     private String buildSingleUserPage(long id) {
         User user;
@@ -87,7 +69,7 @@ public class UserController extends RequestHandler {
             sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
             sendLastLineAndFlush(client);
         }
-        switch (request.getHeaders().get("Content-Type")){
+        switch (request.getHeaders().get("Content-Type")) {
             case "application/json":
                 ObjectMapper mapper = new ObjectMapper();
                 try {
@@ -130,7 +112,6 @@ public class UserController extends RequestHandler {
                 handleGet(request, client);
         }
     }
-
 
     public void handlePut(Request request, Socket client) throws IOException {
 

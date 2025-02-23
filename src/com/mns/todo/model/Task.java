@@ -9,6 +9,14 @@ public class Task implements Model{
     }
 
 
+    public Task(long id, String title, String description, boolean done) {
+        this.id = id;
+        this.description = description;
+        this.title = title;
+        this.done = done;
+        this.creator = creator;
+    }
+
     public Task(){
         this.id = Math.round(Math.random()*1000);
     }
@@ -25,11 +33,15 @@ public class Task implements Model{
     }
 
 
-    protected final long id;
+    protected long id;
     protected String description;
     protected String title;
     protected boolean done;
     protected User creator;
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public long getId() {
         return id;
