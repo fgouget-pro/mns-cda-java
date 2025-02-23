@@ -20,29 +20,33 @@ public class ClientHandler {
         this.router = router;
     }
 
-    public void handleClient() throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        List<String> lines = new ArrayList<>();
-        String line;
-        while (!(line = br.readLine()).isBlank()){
-            lines.add(line);
+    public void handleClient() {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            List<String> lines = new ArrayList<>();
+            String line;
+            while (!(line = br.readLine()).isBlank()) {
+                lines.add(line);
+            }
+            req = parseFirstLine(lines.getFirst());
+            req.setHeaders(parseHeaders(lines));
+            System.out.println(req);
+            if (req.getHeaders().containsKey("Content-Length")) {
+                req.setBody(handleBody(br, Integer.parseInt(req.getHeaders().get("Content-Length"))));
+            }
+            System.out.println("Body of request= " + req.getBody());
+            router.handleRouting(req, client);
+            client.close();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
         }
-        req = parseFirstLine(lines.getFirst());
-        req.setHeaders(parseHeaders(lines));
-        System.out.println(req);
-        if (req.getHeaders().containsKey("Content-Length")){
-            req.setBody(handleBody(br, Integer.parseInt(req.getHeaders().get("Content-Length"))));
-        }
-        System.out.println("Body of request= " + req.getBody());
-        router.handleRouting(req, client);
-        client.close();
     }
 
 
     private String handleBody(BufferedReader br, int size) throws IOException {
         char[] chars = new char[size];
         var read = br.read(chars, 0, chars.length);
-        if (read == -1 || read != size){
+        if (read == -1 || read != size) {
             return "";
         }
         return String.valueOf(chars);
@@ -53,16 +57,13 @@ public class ClientHandler {
         return new Request(firstLine[0], firstLine[1], firstLine[2]);
     }
 
-    private Map<String,String> parseHeaders(List<String> lines){
+    private Map<String, String> parseHeaders(List<String> lines) {
         return lines.stream()
                 .skip(1) // Ignore the first line, it is not a header
                 .takeWhile(s -> !s.isBlank())
                 .map(s -> s.split(": "))
                 .collect(Collectors.toMap(s -> s[0], s -> s[1]));
     }
-
-
-
 
 
 }

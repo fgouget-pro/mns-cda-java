@@ -2,19 +2,21 @@ import com.mns.todo.controllers.TaskController;
 import com.mns.todo.controllers.UserController;
 import com.mns.todo.database.DatabaseAccess;
 import com.mns.todo.database.DatabaseSeeder;
-import com.mns.todo.model.User;
-import com.mns.todo.server.*;
+import com.mns.todo.server.Router;
 import org.h2.tools.Server;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Main {
-
-    /** DBA Centralise et abstrait tous les accès à la base de donnée */
+    /**
+     * DBA Centralise et abstrait tous les accès à la base de donnée
+     */
     static DatabaseAccess dba = DatabaseAccess.getInstance();
     static int PORT = 8080;
 
@@ -24,8 +26,10 @@ public class Main {
         /* DatabaseSeeder se charge de créer tous les éléments en base de donnée au démarrage */
         DatabaseSeeder dbSeeder = new DatabaseSeeder();
         dbSeeder.seed();
-        Server server = Server.createWebServer().start();
+        Server server = Server.createWebServer().start(); // Console web H2
         System.out.println("DB successfully seeded! Starting server...");
+
+        ExecutorService service = Executors.newFixedThreadPool(10);
 
 
         router.addHandler("/users", new UserController());
@@ -35,16 +39,18 @@ public class Main {
             System.out.println("Server started on port " + PORT);
             while (true) {
                 System.out.println("Waiting for connection...");
-                try (Socket client = serverSocket.accept()) {
-                    router.getClientHandler(client).handleClient();
+                try {
+                    Socket client = serverSocket.accept();
+                    service.submit(() -> router.getClientHandler(client).handleClient());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         } finally {
             server.stop();
+            service.shutdown();
         }
     }
-
-
 
 
 }

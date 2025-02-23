@@ -20,6 +20,8 @@ public class Router {
     };
 
     public ClientHandler getClientHandler(Socket client){
+        System.out.println("GET CLIENT HANDLER FROM THREAD " + Thread.currentThread().getName());
+        System.out.println(client.isClosed());
         return new ClientHandler(client, this);
     }
 
