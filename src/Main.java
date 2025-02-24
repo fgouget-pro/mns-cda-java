@@ -29,26 +29,23 @@ public class Main {
         Server server = Server.createWebServer().start(); // Console web H2
         System.out.println("DB successfully seeded! Starting server...");
 
-        ExecutorService service = Executors.newFixedThreadPool(10);
-
-
         router.addHandler("/users", new UserController());
         router.addHandler("/tasks", new TaskController());
-
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Server started on port " + PORT);
-            while (true) {
-                System.out.println("Waiting for connection...");
-                try {
-                    Socket client = serverSocket.accept();
-                    service.submit(() -> router.getClientHandler(client).handleClient());
-                } catch (Exception e) {
-                    e.printStackTrace();
+        try (ExecutorService service = Executors.newFixedThreadPool(10)) {
+            try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+                System.out.println("Server started on port " + PORT);
+                while (true) {
+                    System.out.println("Waiting for connection...");
+                    try {
+                        Socket client = serverSocket.accept();
+                        service.submit(() -> router.getClientHandler(client).handleClient());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } finally {
-            server.stop();
-            service.shutdown();
+            server.shutdown();
         }
     }
 

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mns.todo.database.DatabaseAccess;
 import com.mns.todo.database.ElementNotFoundException;
 import com.mns.todo.model.Task;
-import com.mns.todo.model.User;
 import com.mns.todo.server.HttpStatusCode;
 import com.mns.todo.server.Request;
 import com.mns.todo.server.RequestHandler;
@@ -78,7 +77,6 @@ public class TaskController extends RequestHandler {
         } catch (ElementNotFoundException e) {
             throw new RuntimeException(e);
         }
-        System.out.println(task);
         StringBuilder sb = createHtmlHeader(task.getTitle());
         sb.append("<a href=\"/tasks\">Retour</a>\n");
         sb.append("<form method=\"POST\">");
