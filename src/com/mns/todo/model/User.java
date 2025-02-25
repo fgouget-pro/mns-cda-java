@@ -4,13 +4,9 @@ import java.util.Objects;
 
 public class User implements Model {
 
-    private Long id;
+    private Long id = 0L;
     private String firstName;
     private String lastName;
-
-    {
-        this.id = Math.round(Math.random()*1000);
-    }
 
 
     public String getLastName() {
@@ -50,6 +46,10 @@ public class User implements Model {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     @Override

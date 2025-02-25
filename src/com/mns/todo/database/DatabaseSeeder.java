@@ -17,7 +17,7 @@ public class DatabaseSeeder {
         List<Task> tasks = generateTasks(100);
         tasks.forEach(task -> {
             task.setCreator(users.get(new Random().nextInt(users.size())));
-            dba.addTask(task);
+           // dba.addTask(task);
         });
 
     }

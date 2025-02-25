@@ -10,7 +10,6 @@ public class Task implements Model{
 
 
     public Task(){
-        this.id = Math.round(Math.random()*1000);
     }
 
     public Task(String title, String description){
@@ -25,7 +24,7 @@ public class Task implements Model{
     }
 
 
-    protected final long id;
+    protected long id;
     protected String description;
     protected String title;
     protected boolean done;
@@ -65,6 +64,10 @@ public class Task implements Model{
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override

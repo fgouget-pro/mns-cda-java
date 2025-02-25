@@ -25,12 +25,17 @@ public class TaskBuilder {
         this.creator = creator;
         return this;
     }
-    public Task createTask() {
-        Task task = new Task();
+
+    protected void populateTask(Task task) {
         task.setDescription(description);
         task.setTitle(title);
         task.setDone(done);
         task.setCreator(creator);
+    }
+
+    public Task createTask() {
+        Task task = new Task();
+        populateTask(task);
         return task;
     }
 
