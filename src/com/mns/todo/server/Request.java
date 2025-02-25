@@ -42,6 +42,18 @@ public class Request {
         this.headers = headers;
     }
 
+    public void addHeader(String key, String value) {
+        this.headers.put(key, value);
+    }
+
+    public String getHeader(String key){
+        return this.headers.get(key);
+    }
+
+    public boolean hasHeader(String key){
+        return this.headers.containsKey(key);
+    }
+
 
     @Override
     public String toString() {
