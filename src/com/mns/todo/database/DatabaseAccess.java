@@ -86,6 +86,10 @@ public class DatabaseAccess {
                 preparedStatement.setNull(4, Types.BIGINT);
             }
             preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            if (rs.next()) {
+                task.setId(rs.getLong(1));
+            }
         }catch (SQLException e){
             System.err.println(e.getMessage());
         }

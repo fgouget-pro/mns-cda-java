@@ -14,10 +14,11 @@ public class DatabaseSeeder {
         DatabaseAccess dba = DatabaseAccess.getInstance();
         List<User> users = generateUsers(100);
         users.forEach(dba::addUser);
+        var savedUsers = dba.getUsers();
         List<Task> tasks = generateTasks(100);
         tasks.forEach(task -> {
-            task.setCreator(users.get(new Random().nextInt(users.size())));
-           // dba.addTask(task);
+            task.setCreator(savedUsers.get(new Random().nextInt(savedUsers.size())));
+            dba.addTask(task);
         });
 
     }
