@@ -1,14 +1,9 @@
 package com.mns.todo.server;
 
-import com.mns.todo.database.DatabaseAccess;
-import com.mns.todo.model.User;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.Socket;
-import java.util.List;
 
 public class ClientHandler {
 
