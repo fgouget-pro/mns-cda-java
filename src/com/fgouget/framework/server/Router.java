@@ -1,11 +1,16 @@
-package com.mns.todo.server;
+package com.fgouget.framework.server;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Router {
+
+public class Router implements IRouter {
+
+    public Router(IDepsTester toto){
+
+    }
 
     private final Map<String, RequestHandler> handlers = new HashMap<>();
 

@@ -2,18 +2,21 @@ package com.mns.todo.controllers;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fgouget.framework.server.Controller;
 import com.mns.todo.database.DatabaseAccess;
 import com.mns.todo.database.ElementNotFoundException;
 import com.mns.todo.model.Task;
-import com.mns.todo.server.HttpStatusCode;
-import com.mns.todo.server.Request;
-import com.mns.todo.server.RequestHandler;
+import com.fgouget.framework.server.HttpStatusCode;
+import com.fgouget.framework.server.Request;
+import com.fgouget.framework.server.RequestHandler;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 
+
+@Controller(route="/tasks")
 public class TaskController extends RequestHandler {
     private final DatabaseAccess dba = DatabaseAccess.getInstance();
 

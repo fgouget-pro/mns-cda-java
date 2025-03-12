@@ -1,4 +1,4 @@
-package com.mns.todo.server;
+package com.fgouget.framework.server;
 
 import java.util.Arrays;
 import java.util.Map;

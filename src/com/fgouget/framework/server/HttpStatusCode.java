@@ -1,4 +1,4 @@
-package com.mns.todo.server;
+package com.fgouget.framework.server;
 
 public enum HttpStatusCode {
     NOT_FOUND(404, "Not Found"),
