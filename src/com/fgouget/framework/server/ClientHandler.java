@@ -1,5 +1,7 @@
 package com.fgouget.framework.server;
 
+import com.fgouget.framework.server.model.Request;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,12 +32,13 @@ public class ClientHandler {
             }
             req = parseFirstLine(lines.getFirst());
             req.setHeaders(parseHeaders(lines));
+            req.setClient(client);
             System.out.println(req);
             if (req.getHeaders().containsKey("Content-Length")) {
                 req.setBody(handleBody(br, Integer.parseInt(req.getHeaders().get("Content-Length"))));
             }
             System.out.println("Body of request= " + req.getBody());
-            router.handleRouting(req, client);
+            router.handleRouting(req);
             client.close();
         } catch (IOException e) {
             System.err.println(e.getMessage());

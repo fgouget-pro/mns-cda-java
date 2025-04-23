@@ -5,10 +5,12 @@ import com.mns.todo.model.User;
 import com.mns.todo.model.mapper.TaskMapper;
 import com.mns.todo.model.mapper.UserMapper;
 
+import javax.inject.Named;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Named
 public class DatabaseAccess {
 
     public static final String CREATE_TABLE_USERS = "CREATE TABLE USERS (id bigint auto_increment primary key, firstName varchar(255), lastName varchar(255));";
@@ -23,21 +25,9 @@ public class DatabaseAccess {
     public static final String LIST_TASKS = "SELECT * FROM TASKS";
     public static final String LIST_TASKS_DONE = "SELECT * FROM TASKS WHERE done = ?";
 
-
-    /**  Sert à implementer le design pattern Singleton.*/
-    private static DatabaseAccess instance;
-
-    public static DatabaseAccess getInstance() {
-        if (instance == null) {
-            instance = new DatabaseAccess();
-        }
-        return instance;
-    }
-
-    private final List<Task> tasks = new ArrayList<>();
     private Connection connection;
 
-    private DatabaseAccess(){
+    public DatabaseAccess(){
         try {
             connection = DriverManager.getConnection("jdbc:h2:mem:db1");
             createTables();

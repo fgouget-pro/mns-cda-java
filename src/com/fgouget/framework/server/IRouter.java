@@ -9,7 +9,7 @@ public interface IRouter {
 
     ClientHandler getClientHandler(Socket client);
 
-    void addHandler(String path, RequestHandler handler);
+    void addHandler(String path, IRequestHandler handler);
 
     RequestHandler getDefaultHandler();
 

@@ -53,19 +53,4 @@ public class IocBeanInfo<T> {
         return candidates;
     }
 
-    //    public T getInstance(){
-//        if (this.instance == null){
-//            var c = candidates.getFirst();
-//            try {
-//
-//                return c.getConstructor().newInstance();
-//            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-//                     NoSuchMethodException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        return null;
-//    }
-
-
 }

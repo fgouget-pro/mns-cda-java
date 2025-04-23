@@ -8,7 +8,7 @@ public class ApplicationContext {
     private final IocContainer iocContainer;
 
     public ApplicationContext() {
-        iocContainer = new IocContainer();
+        iocContainer = new IocContainer(this);
     }
 
     public void startServer(int port){
@@ -16,8 +16,10 @@ public class ApplicationContext {
         server.serve(port);
     }
 
-    public void scanPackage(String packageName) {
-        iocContainer.scanPackage(packageName);
+    public void scanPackage(String... packageNames) {
+        for (String packageName : packageNames) {
+            iocContainer.scanPackage(packageName);
+        }
     }
 
     public <T> T getBean(Class<T> clazz) {

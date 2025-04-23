@@ -1,5 +1,9 @@
 package com.fgouget.framework.server;
 
+import com.fgouget.framework.server.annotations.HANDLE;
+import com.fgouget.framework.server.enums.HttpStatusCode;
+import com.fgouget.framework.server.model.Request;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
@@ -8,15 +12,12 @@ import java.util.Map;
 
 public class Router implements IRouter {
 
-    public Router(IDepsTester toto){
-
-    }
-
-    private final Map<String, RequestHandler> handlers = new HashMap<>();
+    private final Map<String, IRequestHandler> handlers = new HashMap<>();
 
     private RequestHandler defaultHandler = new RequestHandler() {
-        @Override
-        public void handleGet(Request request, Socket client) throws IOException {
+        @HANDLE()
+        public void handleGet(Request request) throws IOException {
+            Socket client = request.getClient();
             sendHttpStatus(client, HttpStatusCode.NOT_FOUND);
             sendContentType(client,"text/html");
             sendBody(client, "<b>Not Found</b>");
@@ -25,20 +26,20 @@ public class Router implements IRouter {
     };
 
     public ClientHandler getClientHandler(Socket client){
-        System.out.println("GET CLIENT HANDLER FROM THREAD " + Thread.currentThread().getName());
-        System.out.println(client.isClosed());
         return new ClientHandler(client, this);
     }
 
-    protected void handleRouting(Request req, Socket client) throws IOException {
+    protected void handleRouting(Request req) throws IOException {
+        System.out.println(handlers);
         if (handlers.containsKey(req.getPath())){
-            handlers.get(req.getPath()).handle(req, client);
+            handlers.get(req.getPath()).handle(req);
         } else {
-            defaultHandler.handle(req, client);
+            defaultHandler.handle(req);
         }
     }
 
-    public void addHandler(String path, RequestHandler handler){
+    public void addHandler(String path, IRequestHandler handler){
+        System.out.println("ADDING HANDLER FOR PATH: " + path);
         handlers.put(path, handler);
     }
 

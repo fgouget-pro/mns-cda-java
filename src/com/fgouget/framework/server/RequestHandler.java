@@ -1,11 +1,14 @@
 package com.fgouget.framework.server;
 
+import com.fgouget.framework.server.enums.HttpStatusCode;
+import com.fgouget.framework.server.model.Request;
+import com.fgouget.framework.server.model.Response;
+
 import java.io.IOException;
 import java.net.Socket;
 
 
-public abstract class RequestHandler {
-
+public abstract class RequestHandler implements IRequestHandler {
 
     public void sendHttpStatus(Socket client, HttpStatusCode statusCode) throws IOException {
         var firstLine = String.format("HTTP/1.1 %d %s\r\n", statusCode.getCode(), statusCode.getMessage());
@@ -46,78 +49,21 @@ public abstract class RequestHandler {
         sendLastLineAndFlush(client);
     }
 
-    public abstract void handleGet(Request request, Socket client) throws IOException;
 
-
-    public void handlePost(Request request, Socket client) throws IOException {
-        sent501(client);
+    public final String getRoute(){
+        return "";
     }
 
-    public void handlePut(Request request, Socket client) throws IOException {
-        sent501(client);
+    @Override
+    public void handle(Request request) throws IOException {
+        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
-    public void handleDelete(Request request, Socket client) throws IOException {
-        sent501(client);
+    public final void sentWithResponse(Request req, Response response) throws IOException {
+        var client = req.getClient();
+        sendHttpStatus(client, response.getHttpStatusCode());
+        sendContentType(client, response.getContentType());
+        sendBody(client, response.getBody());
+        sendLastLineAndFlush(client);
     }
-
-
-    public void handle(Request request, Socket client) throws IOException {
-        System.out.println(">>" + request.getMethod() + "<<");
-        System.out.println(this.getClass());
-        switch (request.getMethod()) {
-            case "POST":
-                handlePost(request, client);
-                break;
-            case "PUT":
-                handlePut(request, client);
-                break;
-            case "DELETE":
-                handleDelete(request, client);
-                break;
-            default:
-                handleGet(request, client);
-        }
-    }
-
-
-    protected StringBuilder createHtmlHeader(String title) {
-        StringBuilder html = new StringBuilder();
-        html.append("<html>");
-        html.append("<head>");
-        html.append(String.format("<title>%s</title>\n", title));
-        html.append("<link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH\" crossorigin=\"anonymous\">");
-        html.append("</head></body><div class=\"container-fluid\">\n");
-        return html;
-    }
-
-    protected StringBuilder createHtmlFooter(StringBuilder sb) {
-        return sb.append("</div></body></html>\n");
-    }
-
-
-    protected String createInputLine(String label, String name, String value) {
-        return createInputLine(label, name, value, "text");
-    }
-
-    protected String createInputLine(String label, String name, String value, String type) {
-        String klass = "form-control";
-        String labelClass = "form-label";
-        String valueString = String.format("value=\"%s\"", value);
-        if ("checkbox".equals(type)) {
-            klass = "form-check-input";
-            labelClass = "form-check-label";
-            valueString = "true".equals(value) ? "checked" : "";
-        }
-
-        return String.format(
-                "<label class=\"%s\">%s </label><input class=\"%s\" type=\"%s\" name=\"%s\" %s><br>\n",
-                labelClass, label, klass, type, name, valueString);
-    }
-
-    protected String makeLink(String destination, String... label) {
-        var l = String.join(" ", label);
-        return String.format("<a href=\"%s\">%s</a>", destination, l);
-    }
-
 }

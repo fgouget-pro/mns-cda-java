@@ -2,104 +2,63 @@ package com.mns.todo.controllers;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fgouget.framework.server.Controller;
+import com.fgouget.framework.server.annotations.Controller;
+import com.fgouget.framework.server.annotations.HANDLE;
+import com.fgouget.framework.server.enums.HttpMethods;
+import com.fgouget.framework.server.model.Response;
 import com.mns.todo.database.DatabaseAccess;
 import com.mns.todo.database.ElementNotFoundException;
 import com.mns.todo.model.Task;
-import com.fgouget.framework.server.HttpStatusCode;
-import com.fgouget.framework.server.Request;
+import com.fgouget.framework.server.enums.HttpStatusCode;
+import com.fgouget.framework.server.model.Request;
 import com.fgouget.framework.server.RequestHandler;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
 
 
 @Controller(route="/tasks")
 public class TaskController extends RequestHandler {
-    private final DatabaseAccess dba = DatabaseAccess.getInstance();
+    private final DatabaseAccess dba;
 
-    @Override
-    public void handleGet(Request request, Socket client) throws IOException {
-        String body = "";
+    public TaskController(DatabaseAccess databaseAccess) {
+        dba = databaseAccess;
+    }
+
+    @HANDLE
+    public String handleGet(Request request, Response response) throws IOException {
+        String body;
         if (request.hasParam("id")) {
-            body = buildSingleTaskPage(Long.parseLong(request.getParam("id")));
+            Task task;
+            try {
+                task = dba.getTaskByID(Long.parseLong(request.getParam("id")));
+            } catch (ElementNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            response.getContext().put("task", task);
+            return "task";
         } else {
             var done = "all";
+            List<Task> tasks;
             if (request.hasParam("done")) {
                 done = request.getParam("done");
+                tasks = dba.getTasks(Boolean.parseBoolean(done));
+            } else {
+                tasks = dba.getTasks();
             }
-            body = buildBodyTasksList(done);
+            response.getContext().put("tasks", tasks);
+            response.getContext().put("done", done);
+
+            return "tasks";
         }
-        sendHttpStatus(client, HttpStatusCode.OK);
-        sendContentType(client, "text/html");
-        sendBody(client, body);
-        sendLastLineAndFlush(client);
     }
 
 
-    private String buildBodyTasksList(String done) {
-
-        List<Task> tasks;
-        if ("all".equals(done)) {
-            tasks = dba.getTasks();
-        } else {
-            tasks = dba.getTasks(Boolean.parseBoolean(done));
-        }
-
-        StringBuilder sb = createHtmlHeader("Liste des taches");
-        sb.append("<h1>Liste des taches:</h1>\n");
-        if (!done.equals("true")) {
-            sb.append(makeLink("/tasks?done=true", "Taches Terminees"))
-                    .append("&nbsp;");
-
-        }
-        if (!done.equals("false")) {
-            sb.append(makeLink("/tasks?done=false", "Taches en cours"))
-                    .append("&nbsp;");
-        }
-        if (!done.equals("all")) {
-            sb.append(makeLink("/tasks", "Toutes les tachee"));
-        }
-        sb.append("\n<br>\n");
-        sb.append("<ul>\n");
-        for (Task task : tasks) {
-            sb.append(String.format("<li>%s</li>",
-                    makeLink("tasks?id=" + task.getId(), String.valueOf(task.getId()), task.getTitle())));
-        }
-        sb.append("</ul>\n");
-        return createHtmlFooter(sb).toString();
-    }
-
-
-    private String buildSingleTaskPage(long id) {
-        Task task;
-        try {
-            task = dba.getTaskByID(id);
-        } catch (ElementNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        StringBuilder sb = createHtmlHeader(task.getTitle());
-        sb.append("<a href=\"/tasks\">Retour</a>\n");
-        sb.append("<form method=\"POST\">");
-        sb.append(String.format("ID: %d <br>\n", task.getId()));
-        if (task.getCreator() != null) {
-            sb.append(String.format("Created By: %s<br>\n",
-                    makeLink("/users?id=" + task.getCreator().getId(),
-                            task.getCreator().getFirstName(), task.getCreator().getLastName())));
-        }
-        sb.append(createInputLine("Terminee&nbsp;", "done", String.valueOf(task.isDone()), "checkbox"));
-        sb.append(createInputLine("Title", "title", task.getTitle()));
-        sb.append(createInputLine("Description", "description", task.getDescription()));
-        sb.append("<button class=\"btn btn-success\">OK</button>\n");
-        sb.append("</form>\n");
-        return createHtmlFooter(sb).toString();
-    }
-
-
-    public void handlePost(Request request, Socket client) throws IOException {
+    @HANDLE(httpMethod = HttpMethods.POST)
+    public void handlePost(Request request) throws IOException {
         String body = request.getBody();
+        var client = request.getClient();
         if (body == null || body.isEmpty()) {
             sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
             sendLastLineAndFlush(client);
@@ -143,7 +102,6 @@ public class TaskController extends RequestHandler {
                     }
                 });
                 dba.saveTask(t);
-                handleGet(request, client);
         }
     }
 }

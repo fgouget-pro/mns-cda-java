@@ -2,71 +2,51 @@ package com.mns.todo.controllers;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fgouget.framework.server.Controller;
+import com.fgouget.framework.server.RequestHandler;
+import com.fgouget.framework.server.annotations.Controller;
+import com.fgouget.framework.server.annotations.HANDLE;
+import com.fgouget.framework.server.enums.HttpMethods;
+import com.fgouget.framework.server.enums.HttpStatusCode;
+import com.fgouget.framework.server.model.Request;
+import com.fgouget.framework.server.model.Response;
 import com.mns.todo.database.DatabaseAccess;
 import com.mns.todo.database.ElementNotFoundException;
 import com.mns.todo.model.User;
-import com.fgouget.framework.server.HttpStatusCode;
-import com.fgouget.framework.server.Request;
-import com.fgouget.framework.server.RequestHandler;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.Arrays;
 
 @Controller(route = "/users")
 public class UserController extends RequestHandler {
 
-    private final DatabaseAccess dba = DatabaseAccess.getInstance();
+    private final DatabaseAccess dba;
 
-    @Override
-    public void handleGet(Request request, Socket client) throws IOException {
-        String body = "";
+    public UserController(DatabaseAccess dba) {
+        this.dba = dba;
+    }
+
+    @HANDLE
+    public String handleGet(Request request, Response response) {
         if (request.hasParam("id")) {
-            body = buildSingleUserPage(Long.parseLong(request.getParam("id")));
+            try {
+                var user = dba.getUserById(Long.parseLong(request.getParam("id")));
+                response.getContext().put("user", user);
+                return "user";
+            } catch (ElementNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         } else {
-            body = buildBodyUsersList();
+            var users = dba.getUsers();
+            response.getContext().put("users", users);
+            return "users";
         }
-        sendHttpStatus(client, HttpStatusCode.OK);
-        sendContentType(client, "text/html");
-        sendBody(client, body);
-        sendLastLineAndFlush(client);
     }
 
 
-    private String buildSingleUserPage(long id) {
-        User user;
-        try {
-            user = dba.getUserById(id);
-        } catch (ElementNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        StringBuilder sb = createHtmlHeader(user.getFirstName() + " " + user.getLastName());
-        sb.append("<a href=\"/users\">Retour</a>\n");
-        sb.append("<form method=\"POST\">");
-        sb.append(String.format("ID: %d <br>\n", user.getId()));
-        sb.append(createInputLine("First Name", "firstName", user.getFirstName()));
-        sb.append(createInputLine("Last Name", "lastName", user.getLastName()));
-        sb.append("<button class=\"btn btn-success\">OK</button>\n");
-        sb.append("</form>\n");
-        return createHtmlFooter(sb).toString();
-    }
-
-    private String buildBodyUsersList() {
-        var users = dba.getUsers();
-        StringBuilder sb = createHtmlHeader("Liste des utilisateurs");
-        sb.append("<h1> Liste des utilisateurs:</h1>\n");
-        sb.append("<ul>\n");
-        for (User user : users) {
-            sb.append(String.format("\t<li><a href=\"users?id=%d\"> %d %s %s</a></li>\n", user.getId(), user.getId(), user.getFirstName(), user.getLastName()));
-        }
-        sb.append("</ul>\n");
-        return createHtmlFooter(sb).toString();
-    }
-
-    @Override
-    public void handlePost(Request request, Socket client) throws IOException {
+    @HANDLE(httpMethod = HttpMethods.POST)
+    public void handlePost(Request request) throws IOException {
         String body = request.getBody();
+        var client = request.getClient();
         if (body == null || body.isEmpty()) {
             sendHttpStatus(client, HttpStatusCode.BAD_REQUEST);
             sendLastLineAndFlush(client);
@@ -111,12 +91,8 @@ public class UserController extends RequestHandler {
                     }
                 });
                 dba.saveUser(u);
-                handleGet(request, client);
+                //handleGet(request, null);
         }
     }
 
-    public void handlePut(Request request, Socket client) throws IOException {
-
-
-    }
 }

@@ -1,17 +1,27 @@
 package com.mns.todo.database;
 
+import com.fgouget.framework.server.annotations.AutoStart;
 import com.mns.todo.model.Task;
 import com.mns.todo.model.User;
 import me.xdrop.jrand.JRand;
 
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Named
+@AutoStart
 public class DatabaseSeeder {
 
-    public void seed(){
-        DatabaseAccess dba = DatabaseAccess.getInstance();
+    private final DatabaseAccess dba;
+
+    public DatabaseSeeder(DatabaseAccess dba) {
+        this.dba = dba;
+        this.seed();
+    }
+
+    public void seed() {
         List<User> users = generateUsers(100);
         users.forEach(dba::addUser);
         List<Task> tasks = generateTasks(100);
@@ -24,11 +34,11 @@ public class DatabaseSeeder {
     }
 
 
-    private List<User> generateUsers(int number){
+    private List<User> generateUsers(int number) {
         var firstNames = JRand.firstname();
         var lastNames = JRand.lastname();
         List<User> users = new ArrayList<>();
-        for (int i=0; i<number; i++){
+        for (int i = 0; i < number; i++) {
             var user = new User(firstNames.gen(), lastNames.gen());
             users.add(user);
         }
@@ -36,12 +46,12 @@ public class DatabaseSeeder {
     }
 
 
-    private List<Task> generateTasks(int number){
+    private List<Task> generateTasks(int number) {
         var wordGenerator = JRand.word();
         var paragraphGenerator = JRand.paragraph();
         var boolGenerator = JRand.bool();
         List<Task> tasks = new ArrayList<>();
-        for (int i=0; i<number; i++){
+        for (int i = 0; i < number; i++) {
             Task t = new Task();
             t.setTitle(wordGenerator.gen());
             t.setDescription(paragraphGenerator.gen());
